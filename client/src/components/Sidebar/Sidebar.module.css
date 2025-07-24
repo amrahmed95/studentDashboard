@@ -1,0 +1,45 @@
+.sidebar {
+  width: 16rem;
+  height: 100vh;
+  background: linear-gradient(180deg, #437eb9 0%, #115293 100%);
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+  padding: 1rem;
+  text-align: center;
+  font-size: 2rem;
+  font-weight: bold;
+  color: white;
+}
+
+.listItem {
+  padding: 0;
+  text-align: center;
+}
+
+.listItemButton {
+  padding: 0.75rem 1rem;
+}
+
+.listItemButton:hover {
+  background-color: white !important;
+}
+
+.listItemButton:hover .listItemIcon {
+  color: #1976d2 !important;
+}
+
+.listItemButton:hover .listItemText {
+  color: #1976d2 !important;
+  font-weight: 500 !important;
+}
+
+.listItemIcon {
+  color: rgba(255, 255, 255, 0.7);
+  min-width: 40px;
+}
+
+.listItemText {
+  color: rgba(255, 255, 255, 0.7);
+}

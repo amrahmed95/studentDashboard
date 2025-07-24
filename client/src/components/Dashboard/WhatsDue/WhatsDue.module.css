@@ -1,0 +1,68 @@
+.whatsDueCard {
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 0.75rem;
+}
+
+.dueItem {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.dueItem:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.itemTitle {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.detailRow {
+  display: flex;
+  margin-bottom: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.detailLabel {
+  color: #666;
+  min-width: 60px;
+}
+
+.detailValue {
+  color: #333;
+}
+
+.button {
+  background-color: #1976d2 !important;
+  color: white !important;
+  text-transform: none !important;
+  padding: 6px 16px !important;
+  border-radius: 4px !important;
+  font-weight: 500 !important;
+  margin-top: 1rem !important;
+  font-size: 0.875rem !important;
+}
+
+.button:hover {
+  background-color: #1565c0 !important;
+}
+
+.icon {
+  color: #1976d2;
+  font-size: 1.2rem;
+}

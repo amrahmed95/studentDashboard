@@ -1,0 +1,59 @@
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: white;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.welcomeText {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  background-color: #f5f5f5;
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  width: 400px;
+}
+
+.searchInput {
+  border: none;
+  background: transparent;
+  margin-left: 0.5rem;
+  width: 100%;
+  outline: none;
+}
+
+.icons {
+  display: flex;
+  gap: 1rem;
+}
+
+.iconButton {
+  color: #666;
+  padding: 0.5rem;
+}
+
+.iconButton:hover {
+  color: #1976d2;
+  background-color: rgba(25, 118, 210, 0.1);
+}
+
+.userAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
