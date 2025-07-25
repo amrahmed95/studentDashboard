@@ -1,7 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Joi from 'joi';
 import styles from './Register.module.css';
+
+interface Course {
+  _id: string;
+  name: string;
+  code: string;
+}
 
 const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
@@ -9,12 +15,40 @@ const RegisterPage: React.FC = () => {
     username: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    role: 'student',
+    enrolledCourses: [] as String[],
+    assignedCourses: [] as String[]
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [coursesLoading, setCoursesLoading] = useState(true);
+
+  // Fetch courses on component mount
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/course');
+        const courses = await response.json();
+        if (response.ok) {
+          setCourses(Array.isArray(courses.data) ? courses.data : []);
+        } else {
+          throw new Error(courses.message || 'Failed to fetch courses');
+        }
+      } catch (err) {
+        setErrorMessage(err instanceof Error ? err.message : 'Failed to fetch courses');
+        setCourses([]);
+      } finally {
+        setCoursesLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, []);
+
 
   const signUpSchema = Joi.object({
     username: Joi.string().alphanum().min(3).max(30).required().label('Username'),
@@ -25,7 +59,16 @@ const RegisterPage: React.FC = () => {
       .max(100)
       .required()
       .label('Password'),
-    confirmPassword: Joi.valid(Joi.ref('password')).required().label('Confirm Password')
+    confirmPassword: Joi.valid(Joi.ref('password')).required().label('Confirm Password'),
+    role: Joi.string().valid('student', 'teacher').required().label('Role'),
+    enrolledCourses: Joi.when('role', {
+      is: 'student',
+      then: Joi.array().items(Joi.string()).min(1).required().label('Enrolled Courses')
+    }),
+    assignedCourses: Joi.when('role', {
+      is: 'teacher',
+      then: Joi.array().items(Joi.string()).min(1).required().label('Assigned Courses')
+    })
   });
 
   const validateForm = () => {
@@ -44,9 +87,26 @@ const RegisterPage: React.FC = () => {
     return true;
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+    setForm(prev => ({
+      ...prev,
+      [name]: value,
+      // Reset courses when role changes
+      ...(name === 'role' ? {
+        enrolledCourses: [],
+        assignedCourses: []
+      } : {})
+    }));
+  };
+
+  const handleCourseChange = (courseId: string) => {
+    const field = form.role === 'student' ? 'enrolledCourses' : 'assignedCourses';
+    const updatedCourses = form[field].includes(courseId)
+      ? form[field].filter(id => id !== courseId)
+      : [...form[field], courseId];
+
+    setForm(prev => ({ ...prev, [field]: updatedCourses }));
   };
 
   const submitForm = async (e: React.FormEvent) => {
@@ -66,7 +126,11 @@ const RegisterPage: React.FC = () => {
         body: JSON.stringify({
           username: form.username,
           email: form.email,
-          password: form.password
+          password: form.password,
+          role: form.role,
+          ...(form.role === 'student'
+            ? { enrolledCourses: form.enrolledCourses }
+            : { assignedCourses: form.assignedCourses })
         })
       });
 
@@ -76,14 +140,24 @@ const RegisterPage: React.FC = () => {
         throw new Error(data.message || 'Registration failed');
       }
 
+      // Store user data in localStorage
+      localStorage.setItem('token', data.token);
       localStorage.setItem('username', form.username);
+      localStorage.setItem('email', form.email);
+      localStorage.setItem('role', form.role);
+      localStorage.setItem(
+        form.role === 'student' ? 'enrolledCourses' : 'assignedCourses',
+        JSON.stringify(
+          form.role === 'student'
+            ? form.enrolledCourses
+            : form.assignedCourses
+        )
+      );
 
       setSuccessMessage('Registration successful! Redirecting to dashboard...');
       setTimeout(() => {
-        setSuccessMessage('');
-      }, 10000);
-
-      navigate('/dashboard');
+        navigate('/dashboard');
+      }, 2000);
 
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : 'Registration failed');
@@ -95,71 +169,140 @@ const RegisterPage: React.FC = () => {
   return (
     <div className={styles.formWrapper}>
       <h2>Create Account</h2>
-
       <p>Fill in the details below to create your account.</p>
-      {loading && <p>Loading...</p>}
+
       {loading && <div className={styles.spinner}></div>}
+      {errorMessage && <p className={styles.error}>{errorMessage}</p>}
+      {successMessage && <p className={styles.success}>{successMessage}</p>}
 
-      {!loading && (
-        <form onSubmit={submitForm}>
-          <div className={styles.formGroup}>
-            <label>Username</label>
-            <input
-              name="username"
-              value={form.username}
-              onChange={handleChange}
-              type="text"
-              placeholder="Enter username"
-            />
-            {errors.username && <span className={styles.error}>{errors.username}</span>}
-          </div>
+      <form onSubmit={submitForm}>
+        {/* Existing fields */}
+        <div className={styles.formGroup}>
+          <label>Username</label>
+          <input
+            name="username"
+            value={form.username}
+            onChange={handleChange}
+            type="text"
+            placeholder="Enter username"
+          />
+          {errors.username && <span className={styles.error}>{errors.username}</span>}
+        </div>
 
-          <div className={styles.formGroup}>
-            <label>Email</label>
-            <input
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              type="email"
-              placeholder="Enter email"
-            />
-            {errors.email && <span className={styles.error}>{errors.email}</span>}
-          </div>
+        <div className={styles.formGroup}>
+          <label>Email</label>
+          <input
+            name="email"
+            value={form.email}
+            onChange={handleChange}
+            type="email"
+            placeholder="Enter email"
+          />
+          {errors.email && <span className={styles.error}>{errors.email}</span>}
+        </div>
 
-          <div className={styles.formGroup}>
-            <label>Password</label>
-            <input
-              name="password"
-              value={form.password}
-              onChange={handleChange}
-              type="password"
-              placeholder="Enter password"
-            />
-            {errors.password && <span className={styles.error}>{errors.password}</span>}
-          </div>
+        <div className={styles.formGroup}>
+          <label>Password</label>
+          <input
+            name="password"
+            value={form.password}
+            onChange={handleChange}
+            type="password"
+            placeholder="Enter password"
+          />
+          {errors.password && <span className={styles.error}>{errors.password}</span>}
+        </div>
 
+        <div className={styles.formGroup}>
+          <label>Confirm Password</label>
+          <input
+            name="confirmPassword"
+            value={form.confirmPassword}
+            onChange={handleChange}
+            type="password"
+            placeholder="Re-enter password"
+          />
+          {errors.confirmPassword && (
+            <span className={styles.error}>{errors.confirmPassword}</span>
+          )}
+        </div>
+
+        {/* Role selection */}
+        {/* <div className={styles.formGroup}>
+          <label>Role</label>
+          <select
+            name="role"
+            value={form.role}
+            onChange={handleChange}
+            className={styles.select}
+          >
+            <option value="student">Student</option>
+            <option value="teacher">Teacher</option>
+          </select>
+          {errors.role && <span className={styles.error}>{errors.role}</span>}
+        </div> */}
+
+        <div className={styles.formGroup}>
+          <label>Role</label>
+          <select
+            name="role"
+            value={form.role}
+            onChange={handleChange}
+            className={styles.select}
+            required
+          >
+            <option value="" disabled>Select Role</option>
+            <option value="student">Student</option>
+            <option value="teacher">Teacher</option>
+          </select>
+          {errors.role && <span className={styles.error}>{errors.role}</span>}
+        </div>
+
+        {!coursesLoading && (
           <div className={styles.formGroup}>
-            <label>Confirm Password</label>
-            <input
-              name="confirmPassword"
-              value={form.confirmPassword}
-              onChange={handleChange}
-              type="password"
-              placeholder="Re-enter password"
-            />
-            {errors.confirmPassword && (
-              <span className={styles.error}>{errors.confirmPassword}</span>
+
+            <label>
+              {form.role === 'student' ? 'Enrolled Courses' : 'Assigned Courses'}
+              <span className={styles.requiredAsterisk}>*</span>
+            </label>
+            <div className={styles.courseList}>
+              {courses.map(course => (
+                <div key={course._id} className={styles.courseCheckboxContainer}>
+                  <input
+                    type="checkbox"
+                    id={`course-${course._id}`}
+                    checked={
+                      form.role === 'student'
+                        ? form.enrolledCourses.includes(course._id)
+                        : form.assignedCourses.includes(course._id)
+                    }
+                    onChange={() => handleCourseChange(course._id)}
+                    className={styles.courseCheckbox}
+                  />
+                  <label
+                    htmlFor={`course-${course._id}`}
+                    className={styles.courseLabel}
+                  >
+                    <span className={styles.courseName}>{course.name}</span>
+                    <span className={styles.courseCode}>({course.code})</span>
+                  </label>
+                </div>
+              ))}
+            </div>
+            {form.role === 'student' && errors.enrolledCourses && (
+              <span className={styles.error}>{errors.enrolledCourses}</span>
+            )}
+            {form.role === 'teacher' && errors.assignedCourses && (
+              <span className={styles.error}>{errors.assignedCourses}</span>
             )}
           </div>
+        )}
 
-          <button type="submit" disabled={loading}>
-            {loading ? 'Registering...' : 'Register'}
-          </button>
 
-          {successMessage && <p className={styles.success}>{successMessage}</p>}
-          {errorMessage && <p className={styles.error}>{errorMessage}</p>}
-        </form>
-      )}
+        <button type="submit" disabled={loading || coursesLoading}>
+          {loading ? 'Registering...' : 'Register'}
+        </button>
+      </form>
     </div>
   );
 };
