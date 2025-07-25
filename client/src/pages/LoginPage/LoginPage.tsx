@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import Joi from 'joi';
 import styles from './Login.module.css';
 
 const LoginPage: React.FC = () => {
+  const { login } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({
     email: '',
@@ -61,14 +63,22 @@ const LoginPage: React.FC = () => {
 
       const data = await response.json();
 
+
+      console.log("data from LoginPage.tsx", data);
+
       if (!response.ok) {
         throw new Error(data.message || 'Login failed');
       }
 
+      login(data.data.email, data.data.name, data.data.token, data.data.role, data.data.enrolledCourses);
+
       localStorage.setItem('token', data.data.token);
       localStorage.setItem('username', data.data.username);
+      localStorage.setItem('role', data.data.role);
+      localStorage.setItem('enrolledCourses', JSON.stringify(data.data.enrolledCourses));
 
       navigate('/dashboard');
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {

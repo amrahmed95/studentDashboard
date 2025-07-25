@@ -4,12 +4,15 @@ import { saveToLocalStorage, removeFromLocalStorage, getFromLocalStorage } from 
 interface User {
   email: string;
   name: string;
+  token?: string;
+  role?: string;
+  enrolledCourses?: any[];
 }
 
 interface AuthContextType {
   user: User | null;
   isLoggedIn: boolean;
-  login: (email: string, name: string) => void;
+  login: (email: string, name: string, token?: string, role?: string, enrolledCourses?: any[]) => void;
   logout: () => void;
   register: (email: string, name: string) => void;
 }
@@ -20,15 +23,21 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
   const [user, setUser] = useState<User | null>(getFromLocalStorage('user'));
   const isLoggedIn = Boolean(user);
 
-  const login = (email: string, name: string) => {
-    const userData = { email, name };
+  const login = (email: string, name: string, token?: string, role?: string, enrolledCourses?: any[]) => {
+    const userData = { email, name, token, role, enrolledCourses };
     setUser(userData);
     saveToLocalStorage('user', userData);
+    if(token){
+      saveToLocalStorage('token', token);
+    }
   };
 
   const logout = () => {
     setUser(null);
     removeFromLocalStorage('user');
+    removeFromLocalStorage('token');
+    removeFromLocalStorage('role');
+    removeFromLocalStorage('enrolledCourses');
   };
 
   const register = (email: string, name: string) => {

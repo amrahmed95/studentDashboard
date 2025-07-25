@@ -5,8 +5,9 @@ import { useAuth } from '../context/AuthContext';
 const requireAuth = <P extends object>(Component: React.ComponentType<P>) => {
   const AuthenticatedComponent: React.FC<P> = (props) => {
     const { isLoggedIn } = useAuth();
+    const token = localStorage.getItem('token');
 
-    return isLoggedIn ? (
+    return isLoggedIn && token ? (
       <Component {...props} />
     ) : (
       <Navigate to="/" replace />
