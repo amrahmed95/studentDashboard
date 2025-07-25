@@ -1,8 +1,18 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import styles from './HomePage.module.css';
 
 const HomePage: React.FC = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userIdentifier = localStorage.getItem('username') || localStorage.getItem('user.name') || localStorage.getItem('user.email');
+    if (token && userIdentifier) {
+      navigate('/dashboard');
+    }
+  }, [navigate]);
+
   return (
     <div className={styles.container}>
       <div className={styles.content}>
