@@ -17,6 +17,9 @@
   display: flex;
   align-items: center;
   gap: 1.5rem;
+  flex-wrap: nowrap;
+  width: 100%;
+  justify-content: center;
 }
 
 .searchBar {
@@ -24,8 +27,13 @@
   align-items: center;
   background-color: #f5f5f5;
   border-radius: 20px;
-  padding: 0.5rem 1rem;
-  width: 400px;
+  padding: 0.4rem 1rem;
+  width: 300px;
+}
+
+.searchIcon {
+  color: #888;
+  font-size: 20px;
 }
 
 .searchInput {
@@ -34,16 +42,19 @@
   margin-left: 0.5rem;
   width: 100%;
   outline: none;
+  font-size: 14px;
+  color: #333;
 }
 
 .icons {
   display: flex;
-  gap: 1rem;
+  align-items: center;
+  gap: 10px;
 }
 
 .iconButton {
-  color: #666;
-  padding: 0.5rem;
+  color: #555;
+  padding: 6px;
 }
 
 .iconButton:hover {
@@ -54,6 +65,7 @@
 .userAvatar {
   width: 40px;
   height: 40px;
+  border: 1px solid #ddd;
   border-radius: 50%;
   object-fit: cover;
 }

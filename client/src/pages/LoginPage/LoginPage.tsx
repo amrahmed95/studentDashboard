@@ -70,7 +70,7 @@ const LoginPage: React.FC = () => {
         throw new Error(data.message || 'Login failed');
       }
 
-      login(data.data.email, data.data.name, data.data.token, data.data.role, data.data.enrolledCourses);
+      login(data.data.email, data.data.username);
 
       localStorage.setItem('token', data.data.token);
       localStorage.setItem('username', data.data.username);

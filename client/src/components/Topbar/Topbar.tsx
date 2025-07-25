@@ -1,21 +1,31 @@
 import React from 'react';
 import { IconButton, Avatar } from '@mui/material';
-import { Search, Notifications, Mail, ExitToApp } from '@mui/icons-material';
+import { Search, Notifications, ExitToApp } from '@mui/icons-material';
+import EmailIcon from '@mui/icons-material/Email';
+import { useNavigate } from 'react-router-dom';
 import styles from './Topbar.module.css';
 
 interface TopbarProps {
   userName?: string;
   onLogout?: () => void;
+  userAvatar?: string;
 }
 
-const Topbar: React.FC<TopbarProps> = ({ userName , onLogout}) => {
+const Topbar: React.FC<TopbarProps> = ({ userName, onLogout, userAvatar }) => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    if (onLogout) onLogout();
+    navigate('/');
+  };
+
   return (
     <div className={styles.topbar}>
       <div className={styles.welcomeText}>Welcome {userName},</div>
 
       <div className={styles.controls}>
         <div className={styles.searchBar}>
-          <Search fontSize="small" />
+          <Search className={styles.searchIcon} />
           <input
             type="text"
             placeholder="Search..."
@@ -25,18 +35,22 @@ const Topbar: React.FC<TopbarProps> = ({ userName , onLogout}) => {
 
         <div className={styles.icons}>
           <IconButton className={styles.iconButton}>
-            <Notifications fontSize="medium" />
+            <Notifications />
           </IconButton>
           <IconButton className={styles.iconButton}>
-            <Mail fontSize="medium" />
+            <EmailIcon />
           </IconButton>
           <Avatar
-            alt="User"
-            src="/path/to/user.jpg"
+            alt={userName || 'User'}
+            src={userAvatar || '/default-avatar.png'}
             className={styles.userAvatar}
           />
-          <IconButton className={styles.iconButton} onClick={onLogout}>
-            <ExitToApp fontSize="medium" />
+          <IconButton
+            className={styles.iconButton}
+            onClick={handleLogout}
+            title="Logout"
+          >
+            <ExitToApp />
           </IconButton>
         </div>
       </div>
