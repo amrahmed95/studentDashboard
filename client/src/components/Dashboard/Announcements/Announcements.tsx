@@ -1,34 +1,77 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, Typography } from '@mui/material';
 import AnnouncementCard from './AnnouncementCard';
 import styles from './Announcements.module.css';
 
+interface Announcement {
+  _id: string;
+  createdBy?: {
+    username: string;
+  };
+  title?: string;
+  course?: string;
+  content: string;
+  createdAt?: string;
+}
+
 const Announcements: React.FC = () => {
-  // Dummy data
-  const announcements = [
-    {
-      id: 1,
-      author: 'Mr Ahmed Mostafa',
-      course: 'Math 101',
-      message: 'Hi my hmph! I just want you ready to our events and focus on remaining esteemens to gain more grades, good luck my warriors 😊'
-    },
-    {
-      id: 2,
-      author: 'Mrs-Salma Ahmed',
-      course: 'Physics 02',
-      message: 'Hello my students, I want to announce that the next quit will be within 3 days and will cover the whole unit2r Aid and subtract number. Study hard Good luck!'
-    },
-    {
-      id: 3,
-      author: 'School management',
-      message: 'Congoooooooooad morning, Warnois! That get-really-for-bis-dily call is haard each morning by 050 students at Goodvap Junior High School in Tajamod. Eight. I just want you ready to our exams and focus on remaining esteemens to gain more grades, good luck my warriors 😊'
-    },
-    {
-      id: 4,
-      author: 'Events Manager',
-      message: 'Helloooo, Can\'t wait our upcoming trip on the next weekend. The trip will be to Dreampark and Pyramid. So to book your seat please contact your class teacher.'
-    }
-  ];
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchAnnouncements = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/announcement');
+        if (!response.ok) {
+          throw new Error('Failed to fetch announcements');
+        }
+        const data = await response.json();
+
+        // Transform the data to match our component's expectations
+        const formattedAnnouncements = data.data.map((ann: any) => ({
+          _id: ann._id,
+          title: ann.title,
+          course: ann.course,
+          content: ann.content,
+          creator: ann.createdBy,
+        }));
+
+        console.log("formattedAnnouncements", data.data[0]);
+
+        setAnnouncements(formattedAnnouncements);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load announcements');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAnnouncements();
+  }, []);
+
+
+
+  if (loading) {
+    return (
+      <Card className={styles.announcementsCard}>
+        <CardContent>
+          <Typography>Loading announcements...</Typography>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className={styles.announcementsCard}>
+        <CardContent>
+          <Typography color="error">{error}</Typography>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className={styles.announcementsCard}>
@@ -38,10 +81,9 @@ const Announcements: React.FC = () => {
         </Typography>
         {announcements.map((announcement) => (
           <AnnouncementCard
-            key={announcement.id}
-            author={announcement.author}
+            author={ announcement.createdBy?.username ?? "Admin" }
             course={announcement.course}
-            message={announcement.message}
+            message={announcement.content}
           />
         ))}
         {announcements.length === 0 && (
