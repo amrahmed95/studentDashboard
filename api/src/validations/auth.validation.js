@@ -14,15 +14,15 @@ const signUp = Joi.object({
         .pattern(new RegExp('^[a-zA-Z0-9]{6,100}$')),
 
     confirmPassword: Joi.ref('password'),
-    role: Joi.string().valid('student', 'moderator', 'admin').required(),
+    role: Joi.string().valid('student', 'teacher').required(),
     enrolledCourses: Joi.when('role', {
         is: 'student',
-        then: Joi.array().items(Joi.string().pattern(/^[A-Z]{2,4}\d{3}$/)),
+        then: Joi.array().items(Joi.string().pattern(/^[A-Z]{2,4}\d{3}$/)).min(1).required(),
         otherwise: Joi.forbidden()
     }),
     assignedCourses: Joi.when('role', {
-        is: 'moderator',
-        then: Joi.array().items(Joi.string().pattern(/^[A-Z]{2,4}\d{3}$/)),
+        is: 'teacher',
+        then: Joi.array().items(Joi.string().pattern(/^[A-Z]{2,4}\d{3}$/)).min(1).required(),
         otherwise: Joi.forbidden()
     })
 });

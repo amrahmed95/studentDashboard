@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import Joi from 'joi';
 import styles from './Register.module.css';
 
@@ -11,14 +12,16 @@ interface Course {
 
 const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
+  const { register } = useAuth();
+
   const [form, setForm] = useState({
     username: '',
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'student',
-    enrolledCourses: [] as String[],
-    assignedCourses: [] as String[]
+    role: '',
+    enrolledCourses: [] as Course[],
+    assignedCourses: [] as Course[]
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
@@ -32,11 +35,11 @@ const RegisterPage: React.FC = () => {
     const fetchCourses = async () => {
       try {
         const response = await fetch('http://localhost:3000/api/course');
-        const courses = await response.json();
+        const data = await response.json();
         if (response.ok) {
-          setCourses(Array.isArray(courses.data) ? courses.data : []);
+          setCourses(Array.isArray(data) ? data : Array.isArray(data?.data) ? data.data : []);
         } else {
-          throw new Error(courses.message || 'Failed to fetch courses');
+          throw new Error(data.message || 'Failed to fetch courses');
         }
       } catch (err) {
         setErrorMessage(err instanceof Error ? err.message : 'Failed to fetch courses');
@@ -48,6 +51,8 @@ const RegisterPage: React.FC = () => {
 
     fetchCourses();
   }, []);
+
+  // DEBUG: console.log("Courses", courses);
 
 
   const signUpSchema = Joi.object({
@@ -63,16 +68,34 @@ const RegisterPage: React.FC = () => {
     role: Joi.string().valid('student', 'teacher').required().label('Role'),
     enrolledCourses: Joi.when('role', {
       is: 'student',
-      then: Joi.array().items(Joi.string()).min(1).required().label('Enrolled Courses')
+      then: Joi.array().items(
+        Joi.object({
+          _id: Joi.string().required(),
+          name: Joi.string().required(),
+          code: Joi.string().required()
+        })
+      ).min(1).required().label('Enrolled Courses')
     }),
     assignedCourses: Joi.when('role', {
-      is: 'teacher',
-      then: Joi.array().items(Joi.string()).min(1).required().label('Assigned Courses')
-    })
+        is: 'teacher',
+        then: Joi.array().items(
+          Joi.object({
+            _id: Joi.string().required(),
+            name: Joi.string().required(),
+            code: Joi.string().required()
+          })
+        ).min(1).required().label('Assigned Courses')
+      })
   });
 
-  const validateForm = () => {
-    const { error } = signUpSchema.validate(form, { abortEarly: false });
+  const validateForm = (data: typeof form) => {
+    const transformed = {
+      ...data,
+      enrolledCourses: data.enrolledCourses?.map((c) => c.code),
+      assignedCourses: data.assignedCourses?.map((c) => c.code),
+    };
+
+    const { error } = signUpSchema.validate(transformed, { abortEarly: false });
     if (error) {
       const fieldErrors: Record<string, string> = {};
       error.details.forEach((e) => {
@@ -83,11 +106,14 @@ const RegisterPage: React.FC = () => {
       setErrors(fieldErrors);
       return false;
     }
+
     setErrors({});
     return true;
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setForm(prev => ({
       ...prev,
@@ -100,24 +126,36 @@ const RegisterPage: React.FC = () => {
     }));
   };
 
-  const handleCourseChange = (courseId: string) => {
+  const handleCourseChange = (course: Course) => {
     const field = form.role === 'student' ? 'enrolledCourses' : 'assignedCourses';
-    const updatedCourses = form[field].includes(courseId)
-      ? form[field].filter(id => id !== courseId)
-      : [...form[field], courseId];
 
-    setForm(prev => ({ ...prev, [field]: updatedCourses }));
+    // Check if course exists by _id
+    const courseExists = form[field].some(c => c._id === course._id);
+
+    setForm(prev => ({
+      ...prev,
+      [field]: courseExists
+        ? prev[field].filter(c => c._id !== course._id) // Remove if exists
+        : [...prev[field], course] // Add if doesn't exist
+    }));
   };
-
   const submitForm = async (e: React.FormEvent) => {
     e.preventDefault();
     setSuccessMessage('');
     setErrorMessage('');
 
-    if (!validateForm()) return;
+    if (validateForm(form)) {
+      console.warn("Validation failed", form);
+      return
+    };
 
     setLoading(true);
     try {
+
+      const courseCodes = form.role === 'student'
+        ? form.enrolledCourses.map(c => c.code)
+        : form.assignedCourses.map(c => c.code);
+
       const response = await fetch('http://localhost:3000/api/auth/signup', {
         method: 'POST',
         headers: {
@@ -129,30 +167,36 @@ const RegisterPage: React.FC = () => {
           password: form.password,
           role: form.role,
           ...(form.role === 'student'
-            ? { enrolledCourses: form.enrolledCourses }
-            : { assignedCourses: form.assignedCourses })
+            ? { enrolledCourses: courseCodes }
+            : { assignedCourses: courseCodes })
         })
       });
 
       const data = await response.json();
 
+      // DEBUG:
+      console.log("Data :", data);
+
       if (!response.ok) {
         throw new Error(data.message || 'Registration failed');
       }
 
-      // Store user data in localStorage
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('username', form.username);
-      localStorage.setItem('email', form.email);
-      localStorage.setItem('role', form.role);
-      localStorage.setItem(
-        form.role === 'student' ? 'enrolledCourses' : 'assignedCourses',
-        JSON.stringify(
-          form.role === 'student'
-            ? form.enrolledCourses
-            : form.assignedCourses
-        )
-      );
+      // Storing user data in localStorage with full course objects
+
+      // localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify({
+        id: data.id,
+        username: form.username,
+        email: form.email,
+        role: form.role,
+        enrolledCourses: form.role === 'student' ? form.enrolledCourses : [],
+        assignedCourses: form.role === 'teacher' ? form.assignedCourses : []
+      }));
+
+      // const { id, username, email, role, token, enrolledCourses, assignedCourses } = data.data;
+      // register({ email, username, role, enrolledCourses, assignedCourses, token });
+
+      // console.log("Token: ", data.data.token);
 
       setSuccessMessage('Registration successful! Redirecting to dashboard...');
       setTimeout(() => {
@@ -228,20 +272,6 @@ const RegisterPage: React.FC = () => {
         </div>
 
         {/* Role selection */}
-        {/* <div className={styles.formGroup}>
-          <label>Role</label>
-          <select
-            name="role"
-            value={form.role}
-            onChange={handleChange}
-            className={styles.select}
-          >
-            <option value="student">Student</option>
-            <option value="teacher">Teacher</option>
-          </select>
-          {errors.role && <span className={styles.error}>{errors.role}</span>}
-        </div> */}
-
         <div className={styles.formGroup}>
           <label>Role</label>
           <select
@@ -258,6 +288,8 @@ const RegisterPage: React.FC = () => {
           {errors.role && <span className={styles.error}>{errors.role}</span>}
         </div>
 
+        {/* Debug: console.log('courses before loading', courses) */}
+
         {!coursesLoading && (
           <div className={styles.formGroup}>
 
@@ -273,10 +305,10 @@ const RegisterPage: React.FC = () => {
                     id={`course-${course._id}`}
                     checked={
                       form.role === 'student'
-                        ? form.enrolledCourses.includes(course._id)
-                        : form.assignedCourses.includes(course._id)
+                        ? form.enrolledCourses.some(c => c._id === course._id)
+                        : form.assignedCourses.some(c => c._id === course._id)
                     }
-                    onChange={() => handleCourseChange(course._id)}
+                    onChange={() => handleCourseChange(course)}
                     className={styles.courseCheckbox}
                   />
                   <label

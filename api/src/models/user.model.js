@@ -8,7 +8,7 @@ const UserSchema = new mongoose.Schema({
   role: {
     type: String,
     required: true,
-    enum: ['student', 'moderator', 'admin']
+    enum: ['student', 'teacher']
   },
   // Role-specific fields (optional for each role)
   enrolledCourses: {   // For students
@@ -21,7 +21,7 @@ const UserSchema = new mongoose.Schema({
     type: [mongoose.Schema.Types.ObjectId],
     ref: 'Course',
     default: [],
-    required: function() { return this.role === 'moderator'; }
+    required: function() { return this.role === 'teacher'; }
   }
 }, { timestamps: true });
 

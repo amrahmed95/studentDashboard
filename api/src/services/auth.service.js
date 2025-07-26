@@ -19,7 +19,7 @@ const signUp = async (userData) => {
   let courseIds = [];
   if (userData.role === 'student' && userData.enrolledCourses) {
     courseIds = await convertCourseCodesToIds(userData.enrolledCourses);
-  } else if (userData.role === 'moderator' && userData.assignedCourses) {
+  } else if (userData.role === 'teacher' && userData.assignedCourses) {
     courseIds = await convertCourseCodesToIds(userData.assignedCourses);
   }
 
@@ -29,7 +29,7 @@ const signUp = async (userData) => {
     password: hashedPassword,
     role: userData.role,
     ...(userData.role === 'student' && { enrolledCourses: courseIds }),
-    ...(userData.role === 'moderator' && { assignedCourses: courseIds })
+    ...(userData.role === 'teacher' && { assignedCourses: courseIds })
   });
 
   const userObj = user.toObject();
@@ -73,7 +73,7 @@ const signIn = async (email, password) => {
         email: user.email,
         role: user.role,
         ...(user.role === 'student' && { enrolledCourses: user.enrolledCourses }),
-        ...(user.role === 'moderator' && { assignedCourses: user.assignedCourses }),
+        ...(user.role === 'teacher' && { assignedCourses: user.assignedCourses }),
         token
     };
 };

@@ -1,51 +1,80 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
 import { saveToLocalStorage, removeFromLocalStorage, getFromLocalStorage } from '../utility/localStorage';
+
+
+interface Course {
+  _id: string;
+  name: string;
+  code: string;
+}
+
 
 interface User {
   email: string;
-  name: string;
+  username: string;
+  role: string;
+  enrolledCourses?: Course[];
+  assignedCourses?: Course[];
   token?: string;
-  role?: string;
-  enrolledCourses?: any[];
 }
 
 interface AuthContextType {
   user: User | null;
   isLoggedIn: boolean;
-  login: (email: string, name: string, token?: string, role?: string, enrolledCourses?: any[]) => void;
+  login: (userData: User) => void;
   logout: () => void;
-  register: (email: string, name: string) => void;
+  register: (userData: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(getFromLocalStorage('user'));
-  const isLoggedIn = Boolean(user);
+  const [user, setUser] = useState<User | null>(() => {
+    try {
+      const storedUser = getFromLocalStorage('user');
+      if (!storedUser) return null;
 
-  const login = (email: string, name: string, token?: string, role?: string, enrolledCourses?: any[]) => {
-    const userData = { email, name, token, role, enrolledCourses };
-    setUser(userData);
-    saveToLocalStorage('user', userData);
-    if(token){
-      saveToLocalStorage('token', token);
+      // Handle case where it's already an object
+      if (typeof storedUser === 'object') {
+        return storedUser as User;
+      }
+
+      // Handle stringified JSON
+      return JSON.parse(storedUser) as User;
+    } catch (error) {
+      console.error('Failed to parse user data from localStorage:', error);
+      return null;
     }
-  };
+  });
 
-  const logout = () => {
+  const isLoggedIn = Boolean(user?.token);
+
+  const login = useCallback((userData: User) => {
+    const fullUserData = {
+      ...userData,
+      token: userData.token || user?.token
+    };
+    setUser(fullUserData);
+    saveToLocalStorage('user', JSON.stringify(fullUserData));
+    if (userData.token) {
+      saveToLocalStorage('token', userData.token);
+    }
+  }, [user?.token]);
+
+  const logout = useCallback(() => {
     setUser(null);
     removeFromLocalStorage('user');
-    removeFromLocalStorage('username');
     removeFromLocalStorage('token');
-    removeFromLocalStorage('role');
-    removeFromLocalStorage('enrolledCourses');
-  };
+  }, []);
 
-  const register = (email: string, name: string) => {
-    const userData = { email, name };
-    setUser(userData);
-    saveToLocalStorage('user', userData);
-  };
+
+  const register = useCallback((userData: User) => {
+    login({
+      ...userData,
+      enrolledCourses: userData.enrolledCourses || [],
+      assignedCourses: userData.assignedCourses || []
+    });
+  }, [login]);
 
   return (
     <AuthContext.Provider value={{ user, isLoggedIn, login, logout, register }}>

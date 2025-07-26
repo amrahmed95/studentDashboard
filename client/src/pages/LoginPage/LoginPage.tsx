@@ -70,12 +70,13 @@ const LoginPage: React.FC = () => {
         throw new Error(data.message || 'Login failed');
       }
 
-      login(data.data.email, data.data.username);
+      login(data.data);
 
       localStorage.setItem('token', data.data.token);
       localStorage.setItem('username', data.data.username);
       localStorage.setItem('role', data.data.role);
       localStorage.setItem('enrolledCourses', JSON.stringify(data.data.enrolledCourses));
+      localStorage.setItem('assignedCourses', JSON.stringify(data.data.assignedCourses));
 
       navigate('/dashboard');
 
