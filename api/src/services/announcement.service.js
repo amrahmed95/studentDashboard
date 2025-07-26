@@ -8,7 +8,7 @@ const ANNOUNCEMENT = db.Announcement;
 const createAnnouncement = async (userId, announcementData) => {
     const announcement = await ANNOUNCEMENT.create({
         ...announcementData,
-        userId
+        createdBy: userId
     });
     return announcement;
 };
