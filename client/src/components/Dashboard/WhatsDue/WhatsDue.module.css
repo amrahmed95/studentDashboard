@@ -1,3 +1,5 @@
+/* WhatsDue.module.css */
+
 .whatsDueCard {
   background-color: #ffffff;
   border-radius: 10px;
@@ -5,42 +7,90 @@
   padding: 1.5rem;
 }
 
-.title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #333;
+.headerContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 1.5rem;
   border-bottom: 2px solid #f0f0f0;
   padding-bottom: 0.75rem;
 }
 
-.dueItem {
+.title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+}
+
+.viewAllButton {
+  color: #1976d2 !important;
+  text-transform: none !important;
+  font-weight: 500 !important;
+  padding: 0 !important;
+  min-width: auto !important;
+  margin-left: auto;
+  font-size: 0.875rem !important;
+}
+
+.sectionContainer {
   margin-bottom: 1.5rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid #f5f5f5;
+}
+
+.sectionContainer:last-child {
+  margin-bottom: 0;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.75rem;
+}
+
+.sectionIcon {
+  color: #1976d2;
+  font-size: 1.1rem;
+}
+
+.dueItem {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
 }
 
 .dueItem:last-child {
   margin-bottom: 0;
-  padding-bottom: 0;
-  border-bottom: none;
 }
 
 .itemTitle {
   font-weight: 600;
   color: #333;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.itemIcon {
+  color: #1976d2;
+  font-size: 1.2rem;
 }
 
 .detailRow {
   display: flex;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.375rem;
   font-size: 0.875rem;
 }
 
 .detailLabel {
   color: #666;
   min-width: 60px;
+  font-weight: 500;
 }
 
 .detailValue {
@@ -56,13 +106,17 @@
   font-weight: 500 !important;
   margin-top: 1rem !important;
   font-size: 0.875rem !important;
+  width: 100%;
 }
 
 .button:hover {
   background-color: #1565c0 !important;
 }
 
-.icon {
-  color: #1976d2;
-  font-size: 1.2rem;
+.noItems {
+  font-style: italic;
+  color: #666;
+  font-size: 0.875rem;
+  padding: 0.5rem 0;
+  text-align: center;
 }
