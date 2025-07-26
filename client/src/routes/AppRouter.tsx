@@ -6,6 +6,7 @@ import HomePage from '../pages/HomePage/HomePage'
 import LoginPage from '../pages/LoginPage/LoginPage';
 import RegisterPage from '../pages/RegisterPage/RegisterPage';
 import DashboardPage from '../pages/DashboardPage'
+import AllDueItemsPage from '../pages/AllDueItemsPage/AllDueItemsPage';
 
 const AppRouter: React.FC = () => {
 
@@ -19,6 +20,7 @@ const AppRouter: React.FC = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/dashboard" element={<AuthenticatedDashboard />} />
+          <Route path="/all-due-items" element={<AllDueItemsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>

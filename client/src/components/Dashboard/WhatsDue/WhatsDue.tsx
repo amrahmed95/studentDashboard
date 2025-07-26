@@ -101,7 +101,7 @@ const WhatsDue: React.FC = () => {
   }, []);
 
   const handleViewAll = () => {
-    navigate('/all-due-items'); // Update this path as needed
+    navigate('/all-due-items');
   };
 
   if (loading) {
