@@ -26,7 +26,7 @@ A full-stack application for managing educational assignments and quizzes with u
 
 1. **Clone the repository**
    ```bash
-   git clone [repository-url]
+   git clone [https://github.com/amrahmed95/studentDashboard.git]
 
 2. **nstall dependencies**
     # Install client dependencies
