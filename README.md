@@ -1,4 +1,4 @@
-# EdU Management System
+# EDU Management System
 
 A full-stack application for managing educational assignments and quizzes with user authentication.
 
