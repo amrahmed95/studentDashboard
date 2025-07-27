@@ -28,18 +28,18 @@ A full-stack application for managing educational assignments and quizzes with u
    ```bash
    git clone [https://github.com/amrahmed95/studentDashboard.git]
 
-2. **nstall dependencies**
-    # Install client dependencies
+2. **Install dependencies**
+    ##### Install client dependencies
     cd /client -
     npm install
 
-    # Install server dependencies
+    ##### Install server dependencies
     cd /api -
     npm install
 
 3. **Start the application**
-    # Start backend server (from api directory)
+    ##### Start backend server (from api directory)
     npm run dev
 
-    # Start frontend (from client directory in new terminal)
+    ##### Start frontend (from client directory)
     npm run dev
