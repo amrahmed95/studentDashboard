@@ -1,0 +1,22 @@
+{
+  "header": {
+    "edit_assignment": "Edit Assignment",
+    "edit_quiz": "Edit Quiz",
+    "create_assignment": "Create Assignment",
+    "create_quiz": "Create Quiz"
+  },
+  "form": {
+    "title": "Title",
+    "course": "Course",
+    "topic": "Topic",
+    "due_date": "Due Date & Time",
+    "duration": "Duration (minutes)",
+    "description": "Description"
+  },
+  "button": {
+    "update": "Update",
+    "create": "Create",
+    "cancel": "Cancel",
+    "back": "Back"
+  }
+}
