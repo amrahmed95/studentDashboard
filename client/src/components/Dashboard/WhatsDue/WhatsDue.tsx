@@ -28,7 +28,6 @@ const WhatsDue: React.FC = () => {
       try {
         setLoading(true);
 
-        // Fetch quizzes and assignments in parallel
         const [quizzesRes, assignmentsRes] = await Promise.all([
           fetch('http://localhost:3000/api/quiz/'),
           fetch('http://localhost:3000/api/assignment')
@@ -41,7 +40,6 @@ const WhatsDue: React.FC = () => {
         const quizzesData = await quizzesRes.json();
         const assignmentsData = await assignmentsRes.json();
 
-        // Format due date to match your screenshot (20 Dec 2017 - 09:00 PM)
         const formatDueDate = (dateString: string) => {
           const date = new Date(dateString);
           const day = date.getDate();
@@ -52,7 +50,6 @@ const WhatsDue: React.FC = () => {
           return `${day} ${month} ${year} - ${hours}:${minutes} ${parseInt(hours) >= 12 ? 'PM' : 'AM'}`;
         };
 
-        // Process quizzes and find the nearest one
         if (quizzesData.data?.length > 0) {
           const sortedQuizzes = quizzesData.data
             .map((quiz: any) => ({
@@ -150,6 +147,7 @@ const WhatsDue: React.FC = () => {
             title={nearestQuiz.title}
             course={nearestQuiz.course}
             topic={nearestQuiz.topic}
+            description={nearestQuiz.description}
             dueDate={nearestQuiz.dueDate}
             isAssignment={false}
           />
@@ -168,6 +166,7 @@ const WhatsDue: React.FC = () => {
             title={nearestAssignment.title}
             course={nearestAssignment.course}
             topic={nearestAssignment.topic}
+            description={nearestAssignment.description}
             dueDate={nearestAssignment.dueDate}
             isAssignment={true}
           />

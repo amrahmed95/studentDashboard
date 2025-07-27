@@ -6,6 +6,7 @@ interface DueItemCardProps {
   title?: string;
   course: string;
   topic: string;
+  description?: string;
   dueDate: string;
   isAssignment?: boolean;
 }
@@ -14,6 +15,7 @@ const DueItemCard: React.FC<DueItemCardProps> = ({
   title,
   course,
   topic,
+  description,
   dueDate,
   isAssignment = false
 }) => {
@@ -29,6 +31,11 @@ const DueItemCard: React.FC<DueItemCardProps> = ({
       <div className={styles.detailRow}>
         <span className={styles.detailLabel}>Topic:</span>
         <span className={styles.detailValue}>{topic}</span>
+      </div>
+
+      <div className={styles.detailRow}>
+        <span className={styles.detailLabel}>Description:</span>
+        <span className={styles.detailValue}>{description}</span>
       </div>
 
       <div className={styles.detailRow}>

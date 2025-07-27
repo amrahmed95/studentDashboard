@@ -1,0 +1,113 @@
+/* client/src/pages/Addquiz/Addquiz.module.css */
+
+.container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.header {
+  color: #2c3e50;
+  margin-bottom: 2rem;
+  text-align: center;
+  font-weight: 600;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.error {
+  color: #e74c3c;
+  background-color: #fdecea;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.buttonGroup {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.submitButton {
+  background-color: #3498db !important;
+  color: white !important;
+  padding: 0.75rem 2rem !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  border-radius: 8px !important;
+  transition: all 0.3s ease !important;
+}
+
+.submitButton:hover {
+  background-color: #2980b9 !important;
+  transform: translateY(-1px);
+}
+
+.cancelButton {
+  padding: 0.75rem 2rem !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  border-radius: 8px !important;
+  transition: all 0.3s ease !important;
+}
+
+.textField {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.textField label {
+  color: #7f8c8d;
+}
+
+.textField .MuiOutlinedInput-root {
+  border-radius: 8px;
+}
+
+.textField .MuiOutlinedInput-notchedOutline {
+  border-color: #e0e0e0;
+}
+
+.textField:hover .MuiOutlinedInput-notchedOutline {
+  border-color: #bdc3c7;
+}
+
+.textField .Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #3498db;
+  border-width: 2px;
+}
+
+.selectField .MuiSelect-select {
+  padding: 14px;
+}
+
+.datetimeInput input {
+  padding: 14px;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+
+  .buttonGroup {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .submitButton,
+  .cancelButton {
+    width: 100%;
+  }
+}
